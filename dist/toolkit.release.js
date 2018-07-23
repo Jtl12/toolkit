@@ -1336,7 +1336,12 @@ limitations under the License.
         assertUniqueKeys(to);
       }
 
-      const moves = Reconciler.calculateMoves(from, to);
+      // this allows to fix no tile animation on Speed Dial (DNA-66332)
+      const draggedNode =
+          current.find(node => node.props && node.props.beingDragged);
+
+      const moves =
+          Reconciler.calculateMoves(from, to, draggedNode && draggedNode.key);
 
       const children = [...current];
       for (const move of moves) {
@@ -2260,7 +2265,7 @@ limitations under the License.
       return a.key > b.key ? 1 : -1;
     }
 
-    static calculateMoves(source, target) {
+    static calculateMoves(source, target, draggedItem) {
 
       const moves = [];
 
@@ -2347,17 +2352,16 @@ limitations under the License.
       };
 
       const defaultMoves = calculateIndexChanges([...result], target);
-      if (defaultMoves.length > 1) {
+      if (defaultMoves.length > 1 ||
+          draggedItem && defaultMoves.length === 1 &&
+              defaultMoves[0].item !== draggedItem) {
         const alternativeMoves =
             calculateIndexChanges([...result], target, /*= reversed*/ true);
-        if (alternativeMoves.length < defaultMoves.length) {
+        if (alternativeMoves.length <= defaultMoves.length) {
           moves.push(...alternativeMoves);
           moves.result = alternativeMoves.result;
-        } else {
-          moves.push(...defaultMoves);
-          moves.result = defaultMoves.result;
+          return moves;
         }
-        return moves;
       }
       moves.push(...defaultMoves);
       moves.result = defaultMoves.result;

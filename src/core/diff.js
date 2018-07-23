@@ -283,7 +283,12 @@ limitations under the License.
         assertUniqueKeys(to);
       }
 
-      const moves = Reconciler.calculateMoves(from, to);
+      // this allows to fix no tile animation on Speed Dial (DNA-66332)
+      const draggedNode =
+          current.find(node => node.props && node.props.beingDragged);
+
+      const moves =
+          Reconciler.calculateMoves(from, to, draggedNode && draggedNode.key);
 
       const children = [...current];
       for (const move of moves) {

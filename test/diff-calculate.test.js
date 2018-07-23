@@ -767,7 +767,7 @@ describe('Diff => calculate patches', () => {
           assertMoveChildNode(patches[0], 'X', 0, 4);
         });
 
-        it('swaps two elements', () => {
+        it.skip('swaps two elements', () => {
 
           // given
           const template =
